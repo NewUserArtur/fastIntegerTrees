@@ -1,0 +1,19 @@
+# depslib dependency file v1.0
+1647518679 source:/home/artur/Documents/Codeblocks/Practice/vanEmdeBoas/src/vanEmdeBoas.cpp
+	"vanEmdeBoas.h"
+
+1647518628 /home/artur/Documents/Codeblocks/Practice/vanEmdeBoas/include/vanEmdeBoas.h
+	<vector>
+	<unordered_map>
+	<my_lib.h>
+
+1647519392 source:/home/artur/Documents/Codeblocks/Practice/vanEmdeBoas/main.cpp
+	<bits/stdc++.h>
+	<vanEmdeBoas.cpp>
+	<my_lib.h>
+
+1647518679 /home/artur/Documents/Codeblocks/Practice/vanEmdeBoas/src/vanEmdeBoas.cpp
+	"vanEmdeBoas.h"
+
+1647451546 /home/artur/Documents/Codeblocks/include/my_lib.h
+
