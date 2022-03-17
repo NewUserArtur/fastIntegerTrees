@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
-#include <vanEmdeBoas.cpp>
-#include <my_lib.h>
+#include "vanEmdeBoas.h"
+#include "my_lib.h"
 
 typedef uint64_t u64;
 
@@ -120,15 +120,6 @@ void automatic_test(int k, bool debug = false)
     for (int i = 0; i < k; ++i)
     {
         cout << "step " << i << "\n";
-        //if (t1.root) t1.root->check();
-        if (false)
-        {
-            int x = 1;
-            vector <T> v = t1.to_list();
-            sort(v.begin(), v.end());
-            for (T x: v) cout << (int)x << " ";
-            cout << "\n";
-        }
 
         switch (gen()%8)
         {

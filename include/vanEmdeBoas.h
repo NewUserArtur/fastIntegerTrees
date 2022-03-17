@@ -1,42 +1,46 @@
-#include "vanEmdeBoas.h"
+#ifndef VANEMDEBOAS_H
+#define VANEMDEBOAS_H
+
+#include <vector>
+#include <unordered_map>
+#include "my_lib.h"
 
 namespace fastIntegerTrees
 {
 
-// **vEB node***
+
 template <class T>
-vEB_node<T>::~vEB_node()
+class vEB_node
+{
+public:
+
+~vEB_node()
 {
     if (summary) delete summary;
     for (auto p: children) delete p.second;
 }
 
-template <class T>
-inline bool vEB_node<T>::empty() const
+inline bool empty() const
 {
     return sz==0;
 }
 
-template <class T>
-inline T vEB_node<T>::get_mn() const
+inline T get_mn() const
 {
     return mn;
 }
 
-template <class T>
-inline T vEB_node<T>::get_mx() const
+inline T get_mx() const
 {
     return mx;
 }
 
-template <class T>
-inline size_t vEB_node<T>::get_sz() const
+inline size_t get_sz() const
 {
     return sz;
 }
 
-template <class T>
-vEB_node<T>::vEB_node(u32 w)
+vEB_node(u32 w)
     : w(w),
     summary(0),
     sz(0),
@@ -44,8 +48,7 @@ vEB_node<T>::vEB_node(u32 w)
     mn(max_value<T>(w))
 {}
 
-template <class T>
-T vEB_node<T>::pred(const T &x)
+T pred(const T &x)
 {
     if (w <= 1) return 0;
 
@@ -58,8 +61,7 @@ T vEB_node<T>::pred(const T &x)
     return (c<<(w>>1))^children[c]->get_mx();
 }
 
-template <class T>
-T vEB_node<T>::succ(const T &x)
+T succ(const T &x)
 {
     if (w <= 1) return 1;
 
@@ -72,8 +74,7 @@ T vEB_node<T>::succ(const T &x)
     return (c<<(w>>1))^children[c]->get_mn();
 }
 
-template <class T>
-void vEB_node<T>::insert(const T &x)
+void insert(const T &x)
 {
     ++sz;
     if (w == 0) return;
@@ -93,8 +94,7 @@ void vEB_node<T>::insert(const T &x)
     if (mx < x) mx = x;
 }
 
-template <class T>
-bool vEB_node<T>::erase(const T &x)
+bool erase(const T &x)
 {
     if (w == 0)
     {
@@ -129,8 +129,7 @@ bool vEB_node<T>::erase(const T &x)
     return true;
 }
 
-template <class T>
-void vEB_node<T>::to_list(std::vector <T> &v, T x) const
+void to_list(std::vector <T> &v, T x) const
 {
     if (w == 0)
     {
@@ -141,8 +140,7 @@ void vEB_node<T>::to_list(std::vector <T> &v, T x) const
     for (std::pair <T, vEB_node<T>*> p: children) p.second->to_list(v, x^(p.first<<(w>>1)));
 }
 
-template <class T>
-size_t vEB_node<T>::count(const T &x)
+size_t count(const T &x)
 {
     if (x < mn || mx < x) return 0;
     if (w == 0) return sz;
@@ -152,8 +150,7 @@ size_t vEB_node<T>::count(const T &x)
     return children.find(c) == children.end() ? 0 : children[c]->count(i);
 }
 
-template <class T>
-size_t vEB_node<T>::count_less(const T &x)
+size_t count_less(const T &x)
 {
     if (x <= mn) return 0;
     if (w == 1) return children[0]->sz;
@@ -164,8 +161,7 @@ size_t vEB_node<T>::count_less(const T &x)
             (children.find(c) == children.end() ? 0 : children[c]->count_less(i));
 }
 
-template <class T>
-size_t vEB_node<T>::count_greater(const T &x)
+size_t count_greater(const T &x)
 {
     if (mx <= x) return 0;
     if (w == 1) return children[1]->sz;
@@ -175,25 +171,33 @@ size_t vEB_node<T>::count_greater(const T &x)
     return summary->count_greater(c) +
             (children.find(c) == children.end() ? 0 : children[c]->count_greater(i));
 }
-// end of ***vEB middle node***
+        
+private:
+std::unordered_map <T, vEB_node<T>*> children;
+vEB_node<T> *summary;
+const u32 w;
+T mn, mx;
+size_t sz;
+};
 
 template <class T>
-vanEmdeBoas<T>::vanEmdeBoas()
+class vanEmdeBoas
+{
+public:
+vanEmdeBoas()
     :root(0)
 {
     //ctor
 }
 
-template <class T>
-void vanEmdeBoas<T>::insert(const T &x)
+void insert(const T &x)
 {
     if (!root)
         root = new vEB_node<T>(w);
     root->insert(x);
 }
 
-template <class T>
-void vanEmdeBoas<T>::erase(const T &x)
+void erase(const T &x)
 {
     if (!root) return;
 
@@ -205,32 +209,27 @@ void vanEmdeBoas<T>::erase(const T &x)
     }
 }
 
-template <class T>
-inline T vanEmdeBoas<T>::pred(const T &x) const
+inline T pred(const T &x) const
 {
     return root == nullptr || x <= root->get_mn() ? max_value<T>(size_bits<T>()) : root->pred(x);
 }
 
-template <class T>
-inline T vanEmdeBoas<T>::succ(const T &x) const
+inline T succ(const T &x) const
 {
     return root == nullptr || root->get_mx() <= x ? 0 : root->succ(x);
 }
 
-template <class T>
-inline size_t vanEmdeBoas<T>::get_sz() const
+inline size_t get_sz() const
 {
     return root ? root->get_sz() : 0;
 }
 
-template <class T>
-vanEmdeBoas<T>::~vanEmdeBoas()
+~vanEmdeBoas()
 {
     if (root) delete root;
 }
 
-template <class T>
-std::vector<T> vanEmdeBoas<T>::to_list() const
+std::vector<T> to_list() const
 {
     std::vector <T> ans;
     if (root)
@@ -238,23 +237,27 @@ std::vector<T> vanEmdeBoas<T>::to_list() const
     return ans;
 }
 
-template <class T>
-inline size_t vanEmdeBoas<T>::count(const T &x) const
+inline size_t count(const T &x) const
 {
     return root ? root->count(x) : 0;
 }
 
-template <class T>
-inline size_t vanEmdeBoas<T>::count_less(const T &x) const
+inline size_t count_less(const T &x) const
 {
     return root ? root->count_less(x) : 0;
 }
 
-template <class T>
-inline size_t vanEmdeBoas<T>::count_greater(const T &x) const
+inline size_t count_greater(const T &x) const
 {
     return root ? root->count_greater(x) : 0;
 }
 
+private:
+const u32 w = size_bits<T>();
+vEB_node<T> *root;
+};
+
 
 };
+
+#endif // VANEMDEBOAS_H
