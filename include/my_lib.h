@@ -19,4 +19,7 @@ inline u32 size_bits() {return sizeof(T)<<3;}
 template <class T>
 inline T max_value(u32 w) {return w==size_bits<T>() ? T(-1) : (T(1)<<w)-1;}
 
+template <class T>
+inline void swap(T& a, T& b) {a ^= b; b ^= a; a ^= b;}
+
 #endif

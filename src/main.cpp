@@ -15,9 +15,7 @@ void interactive_test()
     cout << "> x: get successor of  a number\n";
     cout << "< x: get predecessor of  a number\n";
     cout << "p: print the whole set (random order)\n";
-    cout << "c x: count number of occurences of a number\n";
-    cout << "l x: count numbers less than a given number\n";
-    cout << "g x: count numbers greater than a given number\n";
+    cout << "c x: check if x is in the set\n";
     cout << "\n";
 
     using fastIntegerTrees::vanEmdeBoas;
@@ -77,23 +75,7 @@ void interactive_test()
             {
                 int x;
                 cin >> x;
-                cout << t.count(x) << "\n";
-
-                break;
-            }
-            case 'l':
-            {
-                int x;
-                cin >> x;
-                cout << t.count_less(x) << "\n";
-
-                break;
-            }
-            case 'g':
-            {
-                int x;
-                cin >> x;
-                cout << t.count_greater(x) << "\n";
+                cout << t.contains(x) << "\n";
 
                 break;
             }
@@ -115,13 +97,13 @@ void automatic_test(int k, bool debug = false)
 
     mt19937_64 gen(1337);
     vanEmdeBoas <T> t1;
-    multiset <T> t2;
+    set <T> t2;
 
     for (int i = 0; i < k; ++i)
     {
         cout << "step " << i << "\n";
 
-        switch (gen()%8)
+        switch (gen()%6)
         {
             case 0:
             {
@@ -129,6 +111,21 @@ void automatic_test(int k, bool debug = false)
                 if (debug) cout << "+ " << (u64)x << "\n";
                 t1.insert(x);
                 t2.insert(x);
+
+                if (t1.get_sz() != t2.size())
+                {
+                    cout << "ERROR!\n";
+                    vector <T> v1 = t1.to_list();
+                    sort(v1.begin(), v1.end());
+                    cout << v1.size() << "\n";
+                    for (int x: v1) cout << x << " ";
+                    cout << "\n";
+                    cout << t2.size() << "\n";
+                    for (int x: t2) cout << x << " ";
+                    cout << "\n";
+
+                    return;
+                }
 
                 break;
             }
@@ -139,6 +136,14 @@ void automatic_test(int k, bool debug = false)
                 t1.erase(x);
                 auto it = t2.find(x);
                 if (it != t2.end()) t2.erase(it);
+
+                if (t1.get_sz() != t2.size())
+                {
+                    cout << "ERROR!\n";
+                    cout << t1.get_sz() << " " << t2.size() << "\n";
+
+                    return;
+                }
 
                 break;
             }
@@ -155,6 +160,8 @@ void automatic_test(int k, bool debug = false)
                 {
                     cout << "ERROR\n";
                     cout << y << " " << z << "\n";
+
+                    return;
                 }
 
                 break;
@@ -221,48 +228,10 @@ void automatic_test(int k, bool debug = false)
                 T x = gen();
                 if (debug) cout << "c " << x << "\n";
 
-                T y = t1.count(x);
-                T z = t2.count(x);
+                bool y = t1.contains(x);
+                bool z = t2.find(x) != t2.end();
 
                 if (y == z);// cout << "OK\n";
-                else
-                {
-                    cout << "ERROR\n";
-                    cout << y << " " << z << "\n";
-
-                    return;
-                }
-
-                break;
-            }
-            case 6:
-            {
-                T x = gen();
-                if (debug) cout << "l " << x << "\n";
-
-                T y = t1.count_less(x);
-                T z = distance(t2.begin(), lower_bound(t2.begin(), t2.end(), x));
-
-                if (y == z);// cout << "OK\n";
-                else
-                {
-                    cout << "ERROR\n";
-                    cout << y << " " << z << "\n";
-
-                    return;
-                }
-
-                break;
-            }
-            case 7:
-            {
-                T x = gen();
-                if (debug) cout << "g " << x << "\n";
-
-                T y = t1.count_greater(x);
-                T z = distance(upper_bound(t2.begin(), t2.end(), x), t2.end());
-
-                if (y == z);//cout << "OK\n";
                 else
                 {
                     cout << "ERROR\n";
@@ -289,7 +258,7 @@ pair <double, double> speed_test_run(int K, mt19937_64 &gen, bool debug = false)
 
     if (debug) cout << "measuring multiset performance...\n";
     auto start = chrono::steady_clock::now();
-    multiset <T> t1;
+    set <T> t1;
     for (int i = 0; i < K; ++i)
     {
         switch (p[i].first)
@@ -319,17 +288,7 @@ pair <double, double> speed_test_run(int K, mt19937_64 &gen, bool debug = false)
             }
             case 4:
             {
-                ans1[i] = t1.count(p[i].second);
-                break;
-            }
-            case 5:
-            {
-                ans1[i] = distance(t1.begin(), lower_bound(t1.begin(), t1.end(), p[i].second));
-                break;
-            }
-            case 6:
-            {
-                ans1[i] = distance(upper_bound(t1.begin(), t1.end(), p[i].second), t1.end());
+                ans1[i] = t1.find(p[i].second) == t1.end() ? 0 : 1;
                 break;
             }
         }
@@ -369,17 +328,7 @@ pair <double, double> speed_test_run(int K, mt19937_64 &gen, bool debug = false)
             }
             case 4:
             {
-                ans2[i] = t2.count(p[i].second);
-                break;
-            }
-            case 5:
-            {
-                ans2[i] = t2.count_less(p[i].second);
-                break;
-            }
-            case 6:
-            {
-                ans2[i] = t2.count_greater(p[i].second);
+                ans2[i] = t2.contains(p[i].second) ? 1 : 0;
                 break;
             }
         }
@@ -448,7 +397,8 @@ void speed_test_all_types(int n, int k)
 int main()
 {
     //interactive_test();
-    //automatic_test(1e7, false);
+    //automatic_test(1e5, true);
+    //speed_test<u16>(10, 1e5);
     speed_test_all_types(100, 3e4);
 
     return 0;
