@@ -5,3 +5,6 @@ run:
 	./bin/main
 
 build-run: build run
+
+precompile:
+	g++ -c include/*
