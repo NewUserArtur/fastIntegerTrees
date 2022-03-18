@@ -399,7 +399,7 @@ int main()
     //interactive_test();
     //automatic_test(1e5, true);
     //speed_test<u16>(10, 1e5);
-    speed_test_all_types(100, 3e4);
+    speed_test_all_types(10, 1e5);
 
     return 0;
 }
